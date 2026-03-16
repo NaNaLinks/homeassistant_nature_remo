@@ -1,21 +1,17 @@
 # Nature Remo - Home Assistant Custom Integration
 
+⭐ If this integration helps you, please consider giving it a star on GitHub!
+
 📄 日本語版のREADMEはこちら 👉 [README_ja.md](README_ja.md)
 
-This is a custom integration for linking Nature Remo devices with Home Assistant.
+This is a custom integration for linking Nature Remo devices with Home Assistant.  
 It enables you to control appliances like air conditioners and lights, and monitor temperature, humidity, and more directly in your smart home setup.
 
 ---
 
 ## ⚠️ Disclaimer
-This is an **unofficial** integration and is not affiliated with Nature Inc. or Home Assistant.
+This is an **unofficial** integration and is not affiliated with Nature Inc. or Home Assistant.  
 Please use this integration **at your own risk**.
-
----
-
-## v0.2.0 Update
-
-- Added support for remote entities using signals defined in IR, AC, and LIGHT appliances.
 
 ---
 
@@ -25,7 +21,7 @@ Please use this integration **at your own risk**.
 - Retrieve temperature, humidity, illuminance, and motion sensor data
 - Access smart meter data (consumption, generation, instant power) via Nature Remo E / E Lite
 - Control lighting modes using custom service calls
-- Send IR commands using remote entities created from defined signals (added in v0.2.0)
+- Send IR commands using remote entities created from defined signals
 
 ---
 
@@ -54,6 +50,9 @@ Please use this integration **at your own risk**.
 
 - You can set the update interval (in seconds)
   - Default: `60 seconds`
+
+⚠️ Nature Remo Cloud API has rate limits.  
+Setting a very short update interval may cause the integration to reach the API request limit.
 
 ---
 
@@ -90,13 +89,12 @@ data:
 
 ## Author
 
-- Author: [@nanosns](https://github.com/nanosns)(NaNaRin)
+- Author: [@nanosns](https://github.com/nanosns) (NaNaRin)
 - Project: [@NaNaLinks](https://github.com/NaNaLinks)
-- Socials: [note](https://note.com/nanomana), [Qiita](https://qiita.com/NaNaRin), [X](https://x.com/NaNaRin_ks)
+- Socials: [note](https://note.com/nanomana)
 
 ---
 
 ## License
 
 MIT License
-
