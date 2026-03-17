@@ -29,7 +29,7 @@ Please use this integration **at your own risk**.
 
 Click the button below to easily add this repository to HACS.
 
-[![Open your Home Assistant instance and open the repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=NaNaLinks/homeassistant_nature_remo&category=integration)
+[![Open your Home Assistant instance and open the repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=NaNaLinks&repository=homeassistant_nature_remo&category=integration)
 
 1. Open HACS in Home Assistant
 2. Click the menu (⋮) in the top right corner
