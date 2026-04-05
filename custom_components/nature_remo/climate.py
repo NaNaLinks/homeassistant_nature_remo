@@ -296,9 +296,13 @@ class NatureRemoClimate(ClimateEntity):
 
         state = self.hass.states.get(entity_id)
         if state is None:
-            _LOGGER.warning(
+            # 起動直後は外部センサーがまだロードされていない場合があるため DEBUG に格下げ
+            # Downgraded to DEBUG as sensor may not be loaded yet during startup
+            _LOGGER.debug(
                 f"[{self._attr_name}] 外部{sensor_type}センサー '{entity_id}' の状態が取得できません。"
+                f"（起動直後の場合は一時的なものです）"
                 f" / External {sensor_type} sensor '{entity_id}' state not found."
+                f" (This may be temporary if HA has just started.)"
             )
             return None
 
