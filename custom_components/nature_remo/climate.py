@@ -90,8 +90,8 @@ class NatureRemoClimate(ClimateEntity):
         """エアコンの初期設定. / Initialize air conditioner settings."""
         _LOGGER.debug(f'[{appliance["name"]}]Start __init__')
         try:
-            self._attr_unique_id = f"nature_remo_climate_{appliance["appliance_id"]}"
-            self._attr_name = f"Nature Remo {appliance["name"]}"
+            self._attr_unique_id = f"nature_remo_climate_{appliance['appliance_id']}"
+            self._attr_name = f"Nature Remo {appliance['name']}"
             self._coordinator = coordinator
             self._appliance = appliance
             self._device = device
