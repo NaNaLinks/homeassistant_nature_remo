@@ -10,6 +10,7 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_state_change_event
 from .coordinator import NatureRemoCoordinator
 from .const import DOMAIN
 
@@ -412,7 +413,10 @@ class NatureRemoClimate(ClimateEntity):
                     set_range_modes.append(HVACMode.AUTO)
                 self._hvac_modes = set_range_modes
 
-        self.async_write_ha_state()
+        # イベントループ外（別スレッド）からも呼ばれる可能性があるため
+        # schedule_update_ha_state()を使用する（スレッドセーフ）
+        # async_write_ha_state() is not thread-safe; use schedule_update_ha_state() instead
+        self.schedule_update_ha_state()
 
     def get_remo_mode_to_hvac_mode(self, remo_mode) -> HVACMode | None:
         """
@@ -423,6 +427,50 @@ class NatureRemoClimate(ClimateEntity):
             (key for key, value in MODE_MAP.items() if value == remo_mode),
             None,
         )
+
+    def _get_external_sensor_entity_ids(self) -> list[str]:
+        """
+        [Issue#4 案B] 設定されている外部センサーのエンティティIDリストを返す.
+        Return a list of configured external sensor entity IDs.
+        """
+        if self.hass is None or self._entry_id is None:
+            return []
+
+        entry = self.hass.config_entries.async_get_entry(self._entry_id)
+        if entry is None:
+            return []
+
+        device_id = self._device["device_id"]
+        entity_ids = []
+
+        for sensor_type in ("temperature", "humidity"):
+            option_key = f"external_{sensor_type}_{device_id}"
+            entity_id = entry.options.get(option_key)
+            if entity_id:
+                entity_ids.append(entity_id)
+
+        return entity_ids
+
+    def _on_external_sensor_state_changed(self, event) -> None:
+        """
+        [Issue#4 案B] 外部センサーの状態変化を検知したらupdate_statusを呼ぶ.
+        Called when an external sensor state changes; triggers update_status.
+        """
+        entity_id = event.data.get("entity_id")
+        new_state = event.data.get("new_state")
+
+        if new_state is None:
+            _LOGGER.debug(
+                f"[{self._attr_name}] 外部センサー '{entity_id}' の新しい状態がNullです。スキップ。"
+                f" / New state of external sensor '{entity_id}' is None. Skipping."
+            )
+            return
+
+        _LOGGER.debug(
+            f"[{self._attr_name}] 外部センサー '{entity_id}' の状態が変化: {new_state.state}"
+            f" / External sensor '{entity_id}' state changed: {new_state.state}"
+        )
+        self.update_status()
 
     async def async_added_to_hass(self):
         """
@@ -436,7 +484,25 @@ class NatureRemoClimate(ClimateEntity):
         _LOGGER.info(
             f"[{self._attr_name}] async_added_to_hass: Climate entity complete setup"
         )
+        # coordinatorの更新リスナー登録
         self.async_on_remove(self._coordinator.async_add_listener(self.update_status))
+
+        # [Issue#4 案B] 外部センサーの状態変化を監視するリスナーを登録
+        # Register state change listeners for external sensors
+        external_entity_ids = self._get_external_sensor_entity_ids()
+        if external_entity_ids:
+            _LOGGER.debug(
+                f"[{self._attr_name}] 外部センサーの状態変化監視を登録: {external_entity_ids}"
+                f" / Registering state change listeners for: {external_entity_ids}"
+            )
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass,
+                    external_entity_ids,
+                    self._on_external_sensor_state_changed,
+                )
+            )
+
         self.update_status()
         self.async_write_ha_state()
 
