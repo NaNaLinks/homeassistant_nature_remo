@@ -104,6 +104,31 @@ data:
 
 ---
 
+## External Temperature and Humidity Sensors
+
+You can now configure external temperature and humidity sensors for each device.
+
+By selecting entities from Home Assistant settings, the climate device will use the specified sensors instead of the default values provided by Nature Remo.
+
+### How it works
+
+- Open the integration settings from Home Assistant
+- Select a device
+- Choose temperature and humidity entities from available sensors
+- Save the configuration
+
+Once configured, the selected external sensors will be used for:
+
+- Displaying temperature and humidity in the climate entity
+- Providing more accurate environmental data for air conditioner control
+
+### Notes
+
+- If no external sensors are configured, the integration will continue to use the default values from Nature Remo
+- Any sensor entity with appropriate temperature or humidity values can be used
+
+---
+
 ## Author
 
 - Author: [@nanosns](https://github.com/nanosns) (NaNaRin)
