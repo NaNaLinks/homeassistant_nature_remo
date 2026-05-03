@@ -111,6 +111,9 @@ class NatureRemoClimate(ClimateEntity):
             # self.hassはasync_added_to_hass()以降にHAフレームワークが自動セットする
             self._entry_id = entry_id
 
+            # ClimateEntityFeature.TURN_ON / TURN_OFF は互換モードをオフを明示的に必要とする
+            self._enable_turn_on_off_backwards_compatibility = False
+
         except Exception as e:
             _LOGGER.error(f"Error initializing NatureRemoClimate: {e}")
 
@@ -127,7 +130,11 @@ class NatureRemoClimate(ClimateEntity):
     def supported_features(self) -> int:
         """対応している機能を定義. / Define the features supported by this entity."""
         _LOGGER.debug(f"[{self._attr_name}] Start supported_features")
-        support_feature = ClimateEntityFeature(0)
+
+        support_feature = (
+            ClimateEntityFeature.TURN_ON
+            | ClimateEntityFeature.TURN_OFF
+        )
         if self.min_temp != 0.0 and self.max_temp != 0.0:
             support_feature = support_feature | ClimateEntityFeature.TARGET_TEMPERATURE
         if self.fan_modes:
@@ -604,3 +611,19 @@ class NatureRemoClimate(ClimateEntity):
         self._swing_mode = swing_mode
         self._button = ""
         self.async_write_ha_state()
+
+    async def async_turn_off(self):
+        """エアコンをOFFにする. / Turn off the air conditioner."""
+        await self.async_set_hvac_mode(HVACMode.OFF)
+
+    async def async_turn_on(self):
+        """エアコンをONにする. / Turn on the air conditioner."""
+        if self._hvac_mode != HVACMode.OFF:
+            await self.async_set_hvac_mode(self._hvac_mode)
+            return
+
+        if HVACMode.AUTO in self._hvac_modes:
+            await self.async_set_hvac_mode(HVACMode.AUTO)
+            return
+
+        _LOGGER.error("Unable to turn on")
